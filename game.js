@@ -1,6 +1,6 @@
-buttonColors = ["red", "blue", "yellow", "green"];
-userClickedPattern = [];
-gamePattern = [];
+var buttonColors = ["red", "blue", "yellow", "green"];
+var userClickedPattern = [];
+var gamePattern = [];
 var gameStart = 0;
 var level = 0;
 
@@ -8,6 +8,7 @@ var level = 0;
 //Function to iterate the sample
 function nextSequence() {
     var randomNumber;
+    userClickedPattern = [];
     randomNumber = Math.floor(Math.random() * 4);
     var randomChosenColor = buttonColors[randomNumber];
     gamePattern.push(randomChosenColor);
@@ -35,17 +36,15 @@ function animatePress(currentColor){
 
 
 //Capture the button clicked
-$(".btn").on("click", function(event){
+$(".btn").on("click", function(){
     // var userChosenColor = this.id;
     var userChosenColor = $(this).attr("id");
     userClickedPattern.push(userChosenColor);
     playSound(userChosenColor);
     animatePress(userChosenColor);
-    // console.log(userClickedPattern);
-    if (level == userClickedPattern.length) {
-        checkAnswer(0, gamePattern, userClickedPattern);
-    }
-})
+    console.log("Button Clicked");
+    checkAnswer(userClickedPattern.length-1);
+});
 
 
 //function to start the game
@@ -57,17 +56,38 @@ $(document).keydown(function(e) {
     }
 })
 
-function  checkAnswer(currentLevel, gamePattern, userPattern){
-    console.log("User clicked pattern ",userPattern);
+function  checkAnswer(currentLevel) {
+    console.log("User clicked pattern ", userClickedPattern);
     console.log("Game Pattern", gamePattern);
-    if (JSON.stringify(gamePattern)===JSON.stringify(userPattern)) {
+    console.log("level", level);
+    if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
         console.log("Success");
-        userClickedPattern=[]
-        setTimeout(nextSequence(), 1000);
-    }
-    else  {
-        console.log("Wrong!");
-    }
 
+        if (gamePattern.length === userClickedPattern.length) {
+            setTimeout(function () {
+                nextSequence();
+            }, 1000);
+        }
+    }
+    else {
+        console.log("User clicked pattern ", userClickedPattern);
+        console.log("Game Pattern", gamePattern);
+        console.log("wrong!");
+        var wrongSound = new Audio("sounds/wrong.mp3");
+        wrongSound.play();
+        $("body").addClass("game-over");
+        setTimeout(function (){
+            $("body").removeClass("game-over");
+        },200);
+        $("h1").text("Game Over, Press any key to continue");
+        startOver();
+    }
 };
 
+
+function startOver() {
+    userClickedPattern = [];
+    gamePattern = [];
+    gameStart = 0;
+    level = 0;
+}
